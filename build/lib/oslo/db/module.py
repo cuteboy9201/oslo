@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-06 09:08:58
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-06 09:53:14
+@LastEditTime: 2019-11-06 09:38:36
 @Description: 
 '''
 from sqlalchemy import create_engine
@@ -58,6 +58,7 @@ class mysqlHanlder(object):
         self.session = scoped_session(sessionmaker(
             bind=self.engin, expire_on_commit=False))
 
+    # @property
     def get_session(self, db_name):
         db_list = db_pool.get(db_name)
         if db_list:

@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-05 12:05:59
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-05 14:06:49
+@LastEditTime: 2019-11-05 15:44:29
 @Description: 
 '''
 import tornado.web
@@ -54,7 +54,7 @@ class AsyncRequest(object):
         return httpclient.HTTPRequest(url=url,
                                       method=self.method,
                                       body=req_body,
-                                      header=self.headers,
+                                      headers=self.headers,
                                       connect_timeout=self.CONNECT_TIMEOUT,
                                       request_timeout=self.REQUEST_TIMEOUT)
 

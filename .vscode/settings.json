@@ -1,3 +1,41 @@
 {
-    "python.pythonPath": "/usr/local/opt/python@2/bin/python2.7"
+    "python.testing.pytestArgs": [
+        "test"
+    ],
+    "files.exclude": {
+        "**/.pyc": true,
+        "**/*.pyc": true,
+        "**/*.pyo": true
+    },
+    "editor.formatOnSave": true,
+    "python.pythonPath": "/Users/youshumin/gitlab.com/oslo/.env/bin/python",
+    "python.formatting.provider": "autopep8",
+    "fileheader.customMade": {
+        "Author": "Youshumin",
+        "Date": "Do not edit",
+        "LastEditors": "Youshumin",
+        "LastEditTime": "Do not edit",
+        "Description": "",
+    },
+    "fileheader.cursorMode": {},
+    "fileheader.configObj": {
+        "beforeAnnotation": {
+            "py": "#!/usr/bin/env python\n# -*- coding: utf-8 -*-" // py文件默认，可修改
+        },
+        "autoAdd": true, // 将该选项设置为true即可开启
+    },
+    "python.autoComplete.extraPaths": [
+        "/Users/youshumin/gitlab.com/oslo/.env/lib/python2.7"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.unittestEnabled": false,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./test",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.promptToConfigure": false
 }
