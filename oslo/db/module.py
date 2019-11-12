@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-06 09:08:58
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-06 09:53:14
+@LastEditTime: 2019-11-08 11:10:15
 @Description: 
 '''
 from sqlalchemy import create_engine
@@ -30,7 +30,6 @@ class DBPool(object):
 
 db_pool = DBPool()
 
-
 class mysqlHanlder(object):
     def init(self, dbname=None, dburl=None, dbecho=False, pool_size=10):
         self.db_name = dbname
@@ -53,7 +52,6 @@ class mysqlHanlder(object):
                                    pool_size=self.db_pool_size,
                                    pool_recycle=3600,
                                    pool_pre_ping=True)
-
     def _init_session(self):
         self.session = scoped_session(sessionmaker(
             bind=self.engin, expire_on_commit=False))
