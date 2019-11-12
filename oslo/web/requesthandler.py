@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-10-31 22:58:44
 @LastEditors: Youshumin
-@LastEditTime: 2019-10-31 23:04:32
+@LastEditTime: 2019-11-12 12:43:20
 @Description:
 '''
 
@@ -13,12 +13,13 @@ import tornado
 from tornado.escape import json_decode
 from tornado.util import ObjectDict
 
+
 class MixinRequestHandler(tornado.web.RequestHandler):
 
     def __init__(self, application, request, **kwargs):
-        self.headers = self.request.headers
         super(MixinRequestHandler, self).__init__(
             application, request, **kwargs)
+        self.headers = self.request.headers
 
     def write(self, data, jsond=""):
         if jsond:
