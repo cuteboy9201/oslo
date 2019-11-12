@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-10-31 22:58:44
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-12 12:43:20
+@LastEditTime: 2019-11-12 15:13:57
 @Description:
 '''
 
@@ -12,6 +12,7 @@ import json
 import tornado
 from tornado.escape import json_decode
 from tornado.util import ObjectDict
+from tornado.options import define, options
 
 
 class MixinRequestHandler(tornado.web.RequestHandler):
@@ -26,6 +27,14 @@ class MixinRequestHandler(tornado.web.RequestHandler):
             self.set_header("Context-Type", "text/json;charset=utf-8")
             self.set_header("Content-Type", "application/json;charset=UTF-8")
             self.set_header("Cache-Control", "no-cache")
+        if options.debug:
+            self.set_header("Access-Control-Allow-Origin",
+                            "{}".format(self.headers.get("Origin", "")))
+        elif options.allow_host:
+            if self.headers.get("Origin", "") in options.allow_host:
+                self.set_header("Access-Control-Allow-Origin",
+                                "{}".format(self.headers.get("Origin", "")))
+
         super(MixinRequestHandler, self).write(data)
 
     def send_error(self, msg=None, callback=None, code=500):
@@ -74,3 +83,24 @@ class MixinRequestHandler(tornado.web.RequestHandler):
             return data
         except (tornado.web.MissingArgumentError, ValueError):
             return default
+
+    def options(self, *args, **kwargs):
+        """
+        处理测试时候的跨域问题
+        """
+        self.set_header("Access-Control-Allow-Methods",
+                        "GET,PUT,POST,PATCH,DELETE,HEAD,OPTIONS")
+
+        self.set_header("Connection", "keep-alive")
+        if options.debug:
+            self.set_header(
+                "Access-Control-Allow-Origin",
+                "{}".format(self.request.headers.get("Origin", "")))
+
+            self.set_header(
+                "Access-Control-Allow-Headers", "{}".format(
+                    self.request.headers.get("Access-Control-Request-Headers",
+                                             "")))
+        self.write("")
+        self.set_status(204)
+        self.finish()
