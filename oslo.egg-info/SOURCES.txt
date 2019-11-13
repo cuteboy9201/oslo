@@ -8,6 +8,9 @@ oslo.egg-info/not-zip-safe
 oslo.egg-info/top_level.txt
 oslo/db/__init__.py
 oslo/db/module.py
+oslo/form/__init__.py
+oslo/form/fields.py
+oslo/form/form.py
 oslo/web/__init__.py
 oslo/web/httpclient.py
 oslo/web/requesthandler.py

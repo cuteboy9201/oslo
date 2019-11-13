@@ -4,11 +4,11 @@
 @Author: Youshumin
 @Date: 2019-11-05 12:20:11
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-12 16:39:04
+@LastEditTime: 2019-11-13 12:06:12
 @Description: 
 '''
 import logging
-
+from types import MethodType
 LOG = logging.getLogger(__name__)
 
 

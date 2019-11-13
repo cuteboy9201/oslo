@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-06 09:08:58
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-08 11:10:15
+@LastEditTime: 2019-11-12 17:39:07
 @Description: 
 '''
 from sqlalchemy import create_engine
@@ -30,8 +30,10 @@ class DBPool(object):
 
 db_pool = DBPool()
 
+
 class mysqlHanlder(object):
     def init(self, dbname=None, dburl=None, dbecho=False, pool_size=10):
+        LOG.info("dbname: {}, dburl: {}".format(dbname, dburl))
         self.db_name = dbname
         self.db_url = dburl
         self.db_echo = dbecho
@@ -52,6 +54,7 @@ class mysqlHanlder(object):
                                    pool_size=self.db_pool_size,
                                    pool_recycle=3600,
                                    pool_pre_ping=True)
+
     def _init_session(self):
         self.session = scoped_session(sessionmaker(
             bind=self.engin, expire_on_commit=False))
@@ -60,4 +63,7 @@ class mysqlHanlder(object):
         db_list = db_pool.get(db_name)
         if db_list:
             db = db_list[0]
-        return db()
+            return db()
+        else:
+            LOG.error("get_db: {} faild".format(db_name))
+        return ""
