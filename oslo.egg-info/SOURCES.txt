@@ -5,6 +5,7 @@ oslo.egg-info/PKG-INFO
 oslo.egg-info/SOURCES.txt
 oslo.egg-info/dependency_links.txt
 oslo.egg-info/not-zip-safe
+oslo.egg-info/requires.txt
 oslo.egg-info/top_level.txt
 oslo/db/__init__.py
 oslo/db/module.py

@@ -4,11 +4,11 @@
 @Author: Youshumin
 @Date: 2019-10-31 22:58:44
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-13 11:59:16
+@LastEditTime: 2019-11-13 17:54:51
 @Description:
 '''
 
-import json
+import simplejson as json
 import tornado
 from tornado.escape import json_decode
 from tornado.util import ObjectDict
@@ -119,5 +119,5 @@ class MixinRequestHandler(tornado.web.RequestHandler):
                         self.request.headers.get("Access-Control-Request-Headers",
                                                  "")))
         self.write("")
-        self.set_status(204)
+        self.set_status(205)
         self.finish()

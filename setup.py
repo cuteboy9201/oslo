@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-05 12:01:45
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-13 11:48:26
+@LastEditTime: 2019-11-13 17:33:05
 @Description: 
 '''
 from setuptools import setup
@@ -17,5 +17,5 @@ setup(
     url="https://github.com/cuteboy9201/oslo",
     packages=["oslo", "oslo.web", "oslo.db", "oslo.form"],
     zip_safe=False,
-    install_requires=[],
+    install_requires=["simplejson==3.16.0"],
 )
