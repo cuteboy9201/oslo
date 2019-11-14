@@ -45,7 +45,7 @@ class mysqlHanlder(object):
         if not resp:
             self._init_engin()
             self._init_session()
-            db_pool.add(self.db_name, self.session)
+            db_pool.add(self.db_name, [self.session, self.engin])
 
     def _init_engin(self):
         self.engin = create_engine(self.db_url,
@@ -62,8 +62,17 @@ class mysqlHanlder(object):
     def get_session(self, db_name):
         db_list = db_pool.get(db_name)
         if db_list:
-            db = db_list[0]
+            db = db_list[0][0]
             return db()
+        else:
+            LOG.error("get_db: {} faild".format(db_name))
+        return ""
+
+    def get_engin(self, db_name):
+        db_list = db_pool.get(db_name)
+        if db_list:
+            db = db_list[0][1]
+            return db
         else:
             LOG.error("get_db: {} faild".format(db_name))
         return ""
