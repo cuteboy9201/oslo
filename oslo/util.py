@@ -41,3 +41,4 @@ def dbObjFormatToJson(self, field_to_expand=[]):
             if field in field_to_expand:
                 fields[field] = val
     return fields
+
