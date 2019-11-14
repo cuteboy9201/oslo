@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-10-31 22:58:44
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-13 17:32:49
+@LastEditTime: 2019-11-14 14:40:50
 @Description:
 '''
 
@@ -37,27 +37,29 @@ class MixinRequestHandler(tornado.web.RequestHandler):
 
         self.write(data)
 
-    def send_error(self, msg=None, callback=None, code=500):
+    def send_error(self, msg=None, callback=None, code=500, status=200):
         send_json = dict(statusCode=code, msg=msg or "", data="")
         send_json_format = json.dumps(send_json, ensure_ascii=True)
         # if callable:
         #     send_json_format = "{}({})".format(callback, send_json_format)
         self.write_client(send_json_format, True)
+        self.set_status(status)
         self.finish()
 
-    def send_fail_json(self, msg=None, callback=None, code=500):
-        return self.send_error(msg=msg, code=code)
+    def send_fail_json(self, msg=None, callback=None, code=500, status=200):
+        return self.send_error(msg=msg, code=code, status=status)
 
-    def send_ok(self, data=None, callback=None, code=200):
+    def send_ok(self, data=None, callback=None, code=200, status=200):
         send_json = dict(statusCode=code, msg="", data=data)
         send_json_format = json.dumps(send_json, ensure_ascii=True)
         # if callback:
         #     send_json_format = "{}({})".format(callback, send_json_format)
         self.write_client(send_json_format)
+        self.set_status(status)
         self.finish()
 
-    def send_ok_json(self, data=None, callback=None, code=200):
-        return self.send_ok(data=data, code=code)
+    def send_ok_json(self, data=None, callback=None, code=200, status=200):
+        return self.send_ok(data=data, code=code, status=status)
 
     def get_client_ip(self):
         xff = self.headers.get("X-Forwarded-For", "")
@@ -119,5 +121,5 @@ class MixinRequestHandler(tornado.web.RequestHandler):
                         self.request.headers.get("Access-Control-Request-Headers",
                                                  "")))
         self.write("")
-        self.set_status(204)
+        self.set_status(205)
         self.finish()
