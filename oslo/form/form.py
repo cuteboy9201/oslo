@@ -5,7 +5,7 @@
 @Date: 2019-11-12 17:01:50
 @LastEditors: Youshumin
 @LastEditTime: 2019-11-13 11:43:49
-@Description: 
+@Description:
 '''
 import copy
 from .fields import Field
@@ -15,6 +15,7 @@ LOG = logging.getLogger(__name__)
 
 
 class Form(object):
+
     def __init__(self, handler=None):
         """
         :param handler: Tornado请求中的XXXHandler对象

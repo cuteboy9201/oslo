@@ -32,7 +32,7 @@ class StringField(Field):
     """
     字符串类字段
     """
-    REGULAR = "^.*$"
+    REGULAR = "([\s\S]*)"
     REGULAR_KEY = "^(?=.*\d)(?=.*[a-zA-Z])(?=.*[\W_]).{8,32}$"
 
     def __init__(self,
