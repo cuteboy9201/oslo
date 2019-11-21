@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-10-31 22:58:44
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-14 14:40:50
+@LastEditTime: 2019-11-21 11:44:41
 @Description:
 '''
 
@@ -54,7 +54,7 @@ class MixinRequestHandler(tornado.web.RequestHandler):
         send_json_format = json.dumps(send_json, ensure_ascii=True)
         # if callback:
         #     send_json_format = "{}({})".format(callback, send_json_format)
-        self.write_client(send_json_format)
+        self.write_client(send_json_format, True)
         self.set_status(status)
         self.finish()
 
