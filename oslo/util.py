@@ -4,10 +4,12 @@
 @Author: Youshumin
 @Date: 2019-11-05 12:20:11
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-14 16:21:28
+@LastEditTime: 2019-11-27 15:56:50
 @Description: 
 '''
 import logging
+import time
+import datetime 
 from types import MethodType
 LOG = logging.getLogger(__name__)
 
@@ -35,6 +37,8 @@ def dbObjFormatToJson(self, field_to_expand=[]):
     ]:
         val = self.__getattribute__(field)
         if not isinstance(val, MethodType):
+            if isinstance(val, datetime.date):
+                val = val.createTime.strftime("%Y-%m-%d %H:%M:%S")
             if len(field_to_expand) == 0:
                 fields[field] = val
                 continue

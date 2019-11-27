@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-10-31 22:58:44
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-21 11:44:41
+@LastEditTime: 2019-11-27 15:26:17
 @Description:
 '''
 
@@ -37,7 +37,7 @@ class MixinRequestHandler(tornado.web.RequestHandler):
 
         self.write(data)
 
-    def send_error(self, msg=None, callback=None, code=500, status=200):
+    def send_fail(self, msg=None, callback=None, code=500, status=200):
         send_json = dict(statusCode=code, msg=msg or "", data="")
         send_json_format = json.dumps(send_json, ensure_ascii=True)
         # if callable:
@@ -47,7 +47,7 @@ class MixinRequestHandler(tornado.web.RequestHandler):
         self.finish()
 
     def send_fail_json(self, msg=None, callback=None, code=500, status=200):
-        return self.send_error(msg=msg, code=code, status=status)
+        return self.send_fail(msg=msg, code=code, status=status)
 
     def send_ok(self, data=None, callback=None, code=200, status=200):
         send_json = dict(statusCode=code, msg="", data=data)
