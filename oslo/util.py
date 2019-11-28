@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-05 12:20:11
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-27 15:56:50
+@LastEditTime: 2019-11-27 15:58:40
 @Description: 
 '''
 import logging
@@ -38,7 +38,7 @@ def dbObjFormatToJson(self, field_to_expand=[]):
         val = self.__getattribute__(field)
         if not isinstance(val, MethodType):
             if isinstance(val, datetime.date):
-                val = val.createTime.strftime("%Y-%m-%d %H:%M:%S")
+                val = val.strftime("%Y-%m-%d %H:%M:%S")
             if len(field_to_expand) == 0:
                 fields[field] = val
                 continue
