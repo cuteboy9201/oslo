@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-05 12:05:59
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-29 11:49:44
+@LastEditTime: 2019-11-29 17:52:41
 @Description: 
 '''
 import tornado.web
@@ -67,16 +67,14 @@ class AsyncRequest(object):
             self._resp = self._resp.body
             self._status = True
         except Exception as e:
-            # self._resp = {"ok": False, "data": "request error"}
+            self._resp = {}
             raise gen.Return(self)
 
         if self.format == "json":
             try:
                 self._resp = json.loads(self._resp)
             except Exception:
-                pass
-                # self._resp = {"ok": False,
-                #               "msg": "json_error body {}".format(self._resp)}
+                self._resp = {}
         raise gen.Return(self)
 
     @property
@@ -90,7 +88,3 @@ class AsyncRequest(object):
     @property
     def resp(self):
         return self._resp
-
-    @property
-    def request_ok(self):
-        return self._status

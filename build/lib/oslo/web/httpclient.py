@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-05 12:05:59
 @LastEditors: Youshumin
-@LastEditTime: 2019-11-05 15:44:29
+@LastEditTime: 2019-11-29 17:52:41
 @Description: 
 '''
 import tornado.web
@@ -26,6 +26,7 @@ class AsyncRequest(object):
         self.req_data = kwargs
         self.headers = headers
         self._resp = None
+        self._status = False
         self._client = httpclient.AsyncHTTPClient()
         self.CONNECT_TIMEOUT = 3
         self.REQUEST_TIMEOUT = 3
@@ -64,16 +65,16 @@ class AsyncRequest(object):
         try:
             self._resp = yield self._client.fetch(request=req, raise_error=False)
             self._resp = self._resp.body
+            self._status = True
         except Exception as e:
-            self._resp = {"ok": False, "data": "request error"}
+            self._resp = {}
             raise gen.Return(self)
 
         if self.format == "json":
             try:
                 self._resp = json.loads(self._resp)
-            except Exception as e:
-                self._resp = {"ok": False,
-                              "msg": "json_error body {}".format(self._resp)}
+            except Exception:
+                self._resp = {}
         raise gen.Return(self)
 
     @property
@@ -83,10 +84,6 @@ class AsyncRequest(object):
     @property
     def msg(self):
         return self._resp and self._resp["msg"]
-
-    @property
-    def ok(self):
-        return self._resp and self._resp["ok"]
 
     @property
     def resp(self):
