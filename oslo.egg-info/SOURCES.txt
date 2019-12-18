@@ -12,6 +12,8 @@ oslo/db/module.py
 oslo/form/__init__.py
 oslo/form/fields.py
 oslo/form/form.py
+oslo/task/mq_client.py
+oslo/task/mq_server.py
 oslo/web/__init__.py
 oslo/web/httpclient.py
 oslo/web/requesthandler.py

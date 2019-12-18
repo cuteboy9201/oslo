@@ -17,8 +17,13 @@ from tornado import gen
 
 class AsyncRequest(object):
     """异步请求封装"""
-
-    def __init__(self, url, method, body="", format="json", headers=None, **kwargs):
+    def __init__(self,
+                 url,
+                 method,
+                 body="",
+                 format="json",
+                 headers=None,
+                 **kwargs):
         self.url = url
         self.method = method.upper()
         self.body = body
@@ -63,7 +68,8 @@ class AsyncRequest(object):
     def fetch(self):
         req = self._encode_request_mothod()
         try:
-            self._resp = yield self._client.fetch(request=req, raise_error=False)
+            self._resp = yield self._client.fetch(request=req,
+                                                  raise_error=False)
             self._resp = self._resp.body
             self._status = True
         except Exception as e:
