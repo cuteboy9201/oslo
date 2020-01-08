@@ -3,27 +3,30 @@
 '''
 @Author: Youshumin
 @Date: 2019-10-31 22:58:44
-@LastEditors: Youshumin
-@LastEditTime: 2019-11-27 15:26:17
+@LastEditors  : YouShumin
+@LastEditTime : 2020-01-07 02:20:40
 @Description:
 '''
 
-import simplejson as json
 import tornado
 from tornado.escape import json_decode
 from tornado.util import ObjectDict
 from tornado.options import define, options
+try:
+    import simplejson as json
+except:
+    import json
 
 
 class MixinRequestHandler(tornado.web.RequestHandler):
-
     def __init__(self, application, request, **kwargs):
-        super(MixinRequestHandler, self).__init__(
-            application, request, **kwargs)
+        super(MixinRequestHandler, self).__init__(application, request,
+                                                  **kwargs)
         self.headers = self.request.headers
 
     def write_client(self, data, jsond=""):
         if jsond:
+            self.set_header("Server", "Tengine/2.3.2")
             self.set_header("Context-Type", "text/json;charset=utf-8")
             self.set_header("Content-Type", "application/json;charset=UTF-8")
             self.set_header("Cache-Control", "no-cache")
@@ -118,8 +121,8 @@ class MixinRequestHandler(tornado.web.RequestHandler):
                                 "{}".format(self.headers.get("Origin", "")))
                 self.set_header(
                     "Access-Control-Allow-Headers", "{}".format(
-                        self.request.headers.get("Access-Control-Request-Headers",
-                                                 "")))
+                        self.request.headers.get(
+                            "Access-Control-Request-Headers", "")))
         self.write("")
         self.set_status(205)
         self.finish()

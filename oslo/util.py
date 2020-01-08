@@ -9,7 +9,7 @@
 '''
 import logging
 import time
-import datetime 
+import datetime
 from types import MethodType
 LOG = logging.getLogger(__name__)
 
@@ -45,4 +45,6 @@ def dbObjFormatToJson(self, field_to_expand=[]):
             if field in field_to_expand:
                 fields[field] = val
     return fields
+
+
 #

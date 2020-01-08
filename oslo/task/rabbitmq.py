@@ -3,8 +3,8 @@
 '''
 @Author: Youshumin
 @Date: 2019-12-30 14:27:44
-@LastEditTime : 2019-12-30 16:21:55
-@LastEditors  : Youshumin
+@LastEditTime : 2020-01-07 07:44:26
+@LastEditors  : YouShumin
 @Description: 
 @FilePath: /oslo/oslo/task/rabbitmq.py
 '''
@@ -14,13 +14,14 @@ import logging
 import uuid
 import warnings
 
-from pika import BasicProperties
+from pika import (BasicProperties, BlockingConnection, ConnectionParameters,
+                  URLParameters)
 from pika.adapters.tornado_connection import TornadoConnection
-from pika import URLParameters, ConnectionParameters, BlockingConnection
 from tornado import gen
 from tornado.concurrent import Future
 from tornado.ioloop import IOLoop
 from tornado.queues import Queue
+
 
 class RabbitMQError(Exception):
     pass
@@ -101,14 +102,14 @@ class _AsyncConnection(object):
             future.set_exception(Exception("connection Timeout"))
 
     def _try_connect(self):
-        self.logger.info("creating connection")
+        self.logger.debug("start creating connection")
         future = Future()
         self._io_loop.add_timeout(
             datetime.timedelta(seconds=self._timeout),
             functools.partial(self._on_timeout, future=future))
 
         def open_callback(unused_connection):
-            self.logger.info("created connection")
+            self.logger.debug("created connection")
             self._current_status = self.OPEN_STATUS
             future.set_result(unused_connection)
 
@@ -127,6 +128,7 @@ class _AsyncConnection(object):
                           on_close_callback=close_callback,
                           custom_ioloop=self._io_loop)
         return future
+
 
 class TornadoAdapter(object):
     _NORMAL_CLOSE_CODE = 200
@@ -192,7 +194,7 @@ class TornadoAdapter(object):
                         return_callback=None,
                         cancel_callback=None,
                         close_callback=None):
-        self.logger.info("creating channel")
+        self.logger.debug("creating channel")
         future = Future()
 
         def on_channel_flow(*args, **kwargs):
@@ -227,7 +229,7 @@ class TornadoAdapter(object):
                 raise Exception("failed to publish message.")
 
         def open_callback(channel):
-            self.logger.info("created channel")
+            self.logger.debug("start created channel")
             channel.add_on_close_callback(on_channel_closed)
             channel.add_on_return_callback(on_channel_return)
             channel.add_on_flow_callback(on_channel_flow)
@@ -242,11 +244,11 @@ class TornadoAdapter(object):
                           exchange=None,
                           exchange_type='topic',
                           **kwargs):
-        self.logger.info("declaring exchange: %s " % exchange)
+        self.logger.debug("declaring exchange: %s " % exchange)
         future = Future()
 
         def callback(unframe):
-            self.logger.info("declared exchange: %s", exchange)
+            self.logger.debug("declared exchange: %s", exchange)
             future.set_result(unframe)
 
         channel.exchange_declare(callback=callback,
@@ -256,11 +258,11 @@ class TornadoAdapter(object):
         return future
 
     def _queue_declare(self, channel, queue='', **kwargs):
-        self.logger.info("declaring queue: %s" % queue)
+        self.logger.debug("declaring queue: %s" % queue)
         future = Future()
 
         def callback(method_frame):
-            self.logger.info("declared queue: %s", method_frame.method.queue)
+            self.logger.debug("declared queue: %s", method_frame.method.queue)
             future.set_result(method_frame.method.queue)
 
         channel.queue_declare(callback=callback, queue=queue, **kwargs)
@@ -272,12 +274,12 @@ class TornadoAdapter(object):
                     exchange,
                     routing_key=None,
                     **kwargs):
-        self.logger.info("binding queue: %s to exchange: %s", queue, exchange)
+        self.logger.debug("binding queue: %s to exchange: %s", queue, exchange)
         future = Future()
 
         def callback(unframe):
-            self.logger.info("bound queue: %s to exchange: %s", queue,
-                             exchange)
+            self.logger.debug("bound queue: %s to exchange: %s", queue,
+                              exchange)
             future.set_result(unframe)
 
         channel.queue_bind(queue,
@@ -330,7 +332,7 @@ class TornadoAdapter(object):
                 self.logger.error("failed to publish message. %s", e)
                 raise RabbitMQPublishError("failed to publish message")
             finally:
-                self.logger.info("closing channel")
+                self.logger.debug("closing channel")
                 channel.close()
         except RabbitMQPublishError:
             raise
@@ -408,7 +410,7 @@ class TornadoAdapter(object):
                     handler=None,
                     return_callback=None,
                     close_callback=None):
-        self.logger.info("consuming message")
+        self.logger.debug("consuming message")
         self._io_loop.spawn_callback(self._process_message, unused_channel,
                                      basic_deliver, properties, body, exchange,
                                      handler, return_callback, close_callback)
@@ -518,7 +520,7 @@ class TornadoAdapter(object):
         except (gen.Return, RabbitMQError):
             raise
         except Exception as e:
-            self.logger.error("failed to rpc call. %s", e.message)
+            self.logger.error("failed to rpc call. %s", e)
             raise RabbitMQRpcError("failed to rpc call")
 
     @gen.coroutine
@@ -541,8 +543,9 @@ class TornadoAdapter(object):
                                    exchange=exchange,
                                    queue=callback_queue,
                                    routing_key=callback_queue)
-        rpc_channel.basic_consume(self._rpc_callback_process,
-                                  queue=callback_queue)
+        rpc_channel.basic_consume(
+            on_message_callback=self._rpc_callback_process,
+            queue=callback_queue)
         raise gen.Return(callback_queue)
 
     def _rpc_callback_process(self, unused_channel, basic_deliver, properties,
