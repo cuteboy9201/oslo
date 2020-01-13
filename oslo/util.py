@@ -3,24 +3,27 @@
 '''
 @Author: Youshumin
 @Date: 2019-11-05 12:20:11
-@LastEditors: Youshumin
-@LastEditTime: 2019-11-27 15:58:40
+@LastEditors  : YouShumin
+@LastEditTime : 2020-01-13 06:25:02
 @Description: 
 '''
 import logging
 import time
 import datetime
 from types import MethodType
+import sys
 LOG = logging.getLogger(__name__)
+
+py_servion = sys.version_info.major
 
 
 def to_str(kwstr):
     kwstr = kwstr
-    if not isinstance(kwstr, basestring):
-        kwstr = str(kwstr)
-    if isinstance(kwstr, unicode):
-        kwstr = kwstr.encode("utf-8")
-
+    if py_servion == 2:
+        if not isinstance(kwstr, basestring):
+            kwstr = str(kwstr)
+        if isinstance(kwstr, unicode):
+            kwstr = kwstr.encode("utf-8")
     return kwstr
 
 

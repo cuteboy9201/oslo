@@ -3,8 +3,8 @@
 '''
 @Author: Youshumin
 @Date: 2019-11-05 12:05:59
-@LastEditors: Youshumin
-@LastEditTime: 2019-11-29 17:52:41
+@LastEditors  : YouShumin
+@LastEditTime : 2020-01-13 06:24:26
 @Description: 
 '''
 import tornado.web
@@ -13,6 +13,9 @@ from oslo.util import to_str
 import urllib
 import json
 from tornado import gen
+import sys
+
+py_version = sys.version_info.major
 
 
 class AsyncRequest(object):
@@ -40,7 +43,10 @@ class AsyncRequest(object):
     def _encode_request_args(self, args):
         kw = []
         for item in args.items():
-            quote_format = urllib.quote(to_str(item[1]))
+            if py_version == 2:
+                quote_format = urllib.quote(to_str(item[1]))
+            elif py_version == 3:
+                quote_format = urllib.parse.quote(to_str(item[1]))
             kv = "=".join([item[0], quote_format])
             kw.append(kv)
         return "&".join(kw)
