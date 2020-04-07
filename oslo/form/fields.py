@@ -8,7 +8,6 @@ class Field(object):
     """
     所有Form字段的基类
     """
-
     def __init__(self):
         self.status = False
         self.name = None
@@ -659,22 +658,22 @@ class BoolField(Field):
         input_value = handler.get_argument(self.name, "")
         self.value = input_value
 
-        if not input_value:
-            if not self.required:
-                self.status = True
-                return
-            if self.custom_error_dict.get("required", ""):
-                self.error = self.custom_error_dict['required']
-            else:
-                self.error = "%s is required" % self.name
-            return
+        # if not input_value:
+        #     if not self.required:
+        #         self.status = True
+        #         return
+        #     if self.custom_error_dict.get("required", ""):
+        #         self.error = self.custom_error_dict['required']
+        #     else:
+        #         self.error = "%s is required" % self.name
+        #     return
 
         if self.value in self.REFALSE:
             self.value = False
         elif self.value in self.RETRUE:
             self.value = True
         else:
-            self.error = "%s must be True or False" % self.name
-            return
-
+            if self.required:
+                self.error = "%s must be True or False" % self.name
+                return
         self.status = True

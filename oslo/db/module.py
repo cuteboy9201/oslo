@@ -3,14 +3,16 @@
 '''
 @Author: Youshumin
 @Date: 2019-11-06 09:08:58
-@LastEditors: Youshumin
-@LastEditTime: 2019-11-12 17:39:07
+@LastEditors  : YouShumin
+@LastEditTime : 2020-01-19 16:22:27
 @Description: 
 '''
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 import logging
 from collections import defaultdict
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+
 LOG = logging.getLogger(__name__)
 
 
@@ -56,8 +58,8 @@ class mysqlHanlder(object):
                                    pool_pre_ping=True)
 
     def _init_session(self):
-        self.session = scoped_session(sessionmaker(
-            bind=self.engin, expire_on_commit=False))
+        self.session = scoped_session(
+            sessionmaker(bind=self.engin, expire_on_commit=False))
 
     def get_session(self, db_name):
         db_list = db_pool.get(db_name)

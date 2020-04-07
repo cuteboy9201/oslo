@@ -3,8 +3,8 @@
 '''
 @Author: Youshumin
 @Date: 2019-12-30 14:27:44
-@LastEditTime : 2020-01-07 07:44:26
-@LastEditors  : YouShumin
+@LastEditTime: 2020-03-25 16:34:55
+@LastEditors: YouShumin
 @Description: 
 @FilePath: /oslo/oslo/task/rabbitmq.py
 '''

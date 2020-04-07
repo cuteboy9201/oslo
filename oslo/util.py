@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-05 12:20:11
 @LastEditors  : YouShumin
-@LastEditTime : 2020-01-13 06:25:02
+@LastEditTime : 2020-01-19 16:22:06
 @Description: 
 '''
 import logging
@@ -48,6 +48,3 @@ def dbObjFormatToJson(self, field_to_expand=[]):
             if field in field_to_expand:
                 fields[field] = val
     return fields
-
-
-#
