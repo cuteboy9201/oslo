@@ -1,4 +1,6 @@
 .env
+*.pyc
 build
 dist
 oslo.egg-info
+setting.json

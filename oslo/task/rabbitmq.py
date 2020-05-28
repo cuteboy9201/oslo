@@ -1,21 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-'''
+"""
 @Author: Youshumin
 @Date: 2019-12-30 14:27:44
 @LastEditTime: 2020-03-25 16:34:55
 @LastEditors: YouShumin
 @Description: 
 @FilePath: /oslo/oslo/task/rabbitmq.py
-'''
+"""
 import datetime
 import functools
 import logging
 import uuid
 import warnings
 
-from pika import (BasicProperties, BlockingConnection, ConnectionParameters,
-                  URLParameters)
+from pika import (
+    BasicProperties,
+    BlockingConnection,
+    ConnectionParameters,
+    URLParameters,
+)
 from pika.adapters.tornado_connection import TornadoConnection
 from tornado import gen
 from tornado.concurrent import Future
@@ -52,11 +56,14 @@ class _AsyncConnection(object):
     CONNECTING_STATUS = "connecting"
     OPEN_STATUS = "open"
     CLOSE_STATUS = "close"
-    TIMEOUT_STATUS = 'timeout'
+    TIMEOUT_STATUS = "timeout"
 
     def __init__(self, rabbitmq_url, io_loop, timeout=10):
-        self._parameter = ConnectionParameters("127.0.0.1") if rabbitmq_url in ["localhost", "127.0.0.1"] else \
-            URLParameters(rabbitmq_url)
+        self._parameter = (
+            ConnectionParameters("127.0.0.1")
+            if rabbitmq_url in ["localhost", "127.0.0.1"]
+            else URLParameters(rabbitmq_url)
+        )
         self._io_loop = io_loop
         self._timeout = timeout
         self._logger = logging.getLogger(__name__)
@@ -65,12 +72,15 @@ class _AsyncConnection(object):
 
     @property
     def logger(self):
+        self._logger.setLevel(logging.INFO)
         return self._logger
 
     @property
     def status_ok(self):
-        return self._current_status != self.CLOSE_STATUS \
-               and self._current_status != self.TIMEOUT_STATUS
+        return (
+            self._current_status != self.CLOSE_STATUS
+            and self._current_status != self.TIMEOUT_STATUS
+        )
 
     @gen.coroutine
     def get_connection(self):
@@ -106,7 +116,8 @@ class _AsyncConnection(object):
         future = Future()
         self._io_loop.add_timeout(
             datetime.timedelta(seconds=self._timeout),
-            functools.partial(self._on_timeout, future=future))
+            functools.partial(self._on_timeout, future=future),
+        )
 
         def open_callback(unused_connection):
             self.logger.debug("created connection")
@@ -122,11 +133,13 @@ class _AsyncConnection(object):
             self.logger.error("Connect closed, %s", reason)
             self._current_status = self.CLOSE_STATUS
 
-        TornadoConnection(self._parameter,
-                          on_open_callback=open_callback,
-                          on_open_error_callback=open_error_callback,
-                          on_close_callback=close_callback,
-                          custom_ioloop=self._io_loop)
+        TornadoConnection(
+            self._parameter,
+            on_open_callback=open_callback,
+            on_open_error_callback=open_error_callback,
+            on_close_callback=close_callback,
+            custom_ioloop=self._io_loop,
+        )
         return future
 
 
@@ -157,12 +170,16 @@ class TornadoAdapter(object):
         :param rabbitmq_url: url for rabbitmq. it can be either '127.0.0.1' ("localhost") or 'amqp://dev:aispeech2018@10.12.7.22:5672/'
         :param io_loop: io loop. if it is none, using IOLoop.current() instead.
         """
-        self._parameter = ConnectionParameters("127.0.0.1") if rabbitmq_url in ["localhost", "127.0.0.1"] else \
-            URLParameters(rabbitmq_url)
+        self._parameter = (
+            ConnectionParameters("127.0.0.1")
+            if rabbitmq_url in ["localhost", "127.0.0.1"]
+            else URLParameters(rabbitmq_url)
+        )
         if io_loop is None:
             io_loop = IOLoop.current()
         self._io_loop = io_loop
         self._logger = logging.getLogger(__name__)
+        self._logger.setLevel(logging.INFO)
         self._publish_conn = _AsyncConnection(rabbitmq_url, io_loop)
         self._receive_conn = _AsyncConnection(rabbitmq_url, io_loop)
         self._rpc_exchange_dict = dict()
@@ -178,7 +195,8 @@ class TornadoAdapter(object):
             "Calling connect() method is unnecessary. "
             "Call `publish`, `receive` and `rpc` methods straightly. ",
             category=DeprecationWarning,
-            stacklevel=2)
+            stacklevel=2,
+        )
         raise gen.Return(True)
 
     @property
@@ -189,11 +207,13 @@ class TornadoAdapter(object):
         """
         return self._logger
 
-    def _create_channel(self,
-                        connection,
-                        return_callback=None,
-                        cancel_callback=None,
-                        close_callback=None):
+    def _create_channel(
+        self,
+        connection,
+        return_callback=None,
+        cancel_callback=None,
+        close_callback=None,
+    ):
         self.logger.debug("creating channel")
         future = Future()
 
@@ -219,7 +239,9 @@ class TornadoAdapter(object):
         def on_channel_return(channel, method, property, body):
             self.logger.error(
                 "reject from server. reply code: %d, reply text: %s.",
-                method.reply_code, method.reply_text)
+                method.reply_code,
+                method.reply_text,
+            )
             if return_callback is not None:
                 if hasattr(return_callback, "__tornado_coroutine__"):
                     self._io_loop.spawn_callback(return_callback)
@@ -239,11 +261,9 @@ class TornadoAdapter(object):
         connection.channel(on_open_callback=open_callback)
         return future
 
-    def _exchange_declare(self,
-                          channel,
-                          exchange=None,
-                          exchange_type='topic',
-                          **kwargs):
+    def _exchange_declare(
+        self, channel, exchange=None, exchange_type="topic", **kwargs
+    ):
         self.logger.debug("declaring exchange: %s " % exchange)
         future = Future()
 
@@ -251,13 +271,12 @@ class TornadoAdapter(object):
             self.logger.debug("declared exchange: %s", exchange)
             future.set_result(unframe)
 
-        channel.exchange_declare(callback=callback,
-                                 exchange=exchange,
-                                 exchange_type=exchange_type,
-                                 **kwargs)
+        channel.exchange_declare(
+            callback=callback, exchange=exchange, exchange_type=exchange_type, **kwargs
+        )
         return future
 
-    def _queue_declare(self, channel, queue='', **kwargs):
+    def _queue_declare(self, channel, queue="", **kwargs):
         self.logger.debug("declaring queue: %s" % queue)
         future = Future()
 
@@ -268,36 +287,30 @@ class TornadoAdapter(object):
         channel.queue_declare(callback=callback, queue=queue, **kwargs)
         return future
 
-    def _queue_bind(self,
-                    channel,
-                    queue,
-                    exchange,
-                    routing_key=None,
-                    **kwargs):
+    def _queue_bind(self, channel, queue, exchange, routing_key=None, **kwargs):
         self.logger.debug("binding queue: %s to exchange: %s", queue, exchange)
         future = Future()
 
         def callback(unframe):
-            self.logger.debug("bound queue: %s to exchange: %s", queue,
-                              exchange)
+            self.logger.debug("bound queue: %s to exchange: %s", queue, exchange)
             future.set_result(unframe)
 
-        channel.queue_bind(queue,
-                           exchange,
-                           routing_key=routing_key,
-                           callback=callback,
-                           **kwargs)
+        channel.queue_bind(
+            queue, exchange, routing_key=routing_key, callback=callback, **kwargs
+        )
         return future
 
     @gen.coroutine
-    def publish(self,
-                exchange,
-                routing_key,
-                body,
-                properties=None,
-                mandatory=True,
-                return_callback=None,
-                close_callback=None):
+    def publish(
+        self,
+        exchange,
+        routing_key,
+        body,
+        properties=None,
+        mandatory=True,
+        return_callback=None,
+        close_callback=None,
+    ):
         """
         publish message. creating a brand new channel once invoke this method. After publishing, it closes the
         channel.
@@ -315,19 +328,22 @@ class TornadoAdapter(object):
             conn = yield self._publish_conn.get_connection()
             self.logger.info(
                 "preparing to publish. exchange: %s; routing_key: %s",
-                exchange, routing_key)
+                exchange,
+                routing_key,
+            )
             channel = yield self._create_channel(
-                conn,
-                return_callback=return_callback,
-                close_callback=close_callback)
+                conn, return_callback=return_callback, close_callback=close_callback
+            )
             try:
                 if properties is None:
                     properties = BasicProperties(delivery_mode=2)
-                channel.basic_publish(exchange=exchange,
-                                      routing_key=routing_key,
-                                      body=body,
-                                      mandatory=mandatory,
-                                      properties=properties)
+                channel.basic_publish(
+                    exchange=exchange,
+                    routing_key=routing_key,
+                    body=body,
+                    mandatory=mandatory,
+                    properties=properties,
+                )
             except Exception as e:
                 self.logger.error("failed to publish message. %s", e)
                 raise RabbitMQPublishError("failed to publish message")
@@ -340,16 +356,18 @@ class TornadoAdapter(object):
             raise RabbitMQPublishError("failed to publish message")
 
     @gen.coroutine
-    def receive(self,
-                exchange,
-                routing_key,
-                queue_name,
-                handler,
-                no_ack=False,
-                prefetch_count=0,
-                return_callback=None,
-                close_callback=None,
-                cancel_callback=None):
+    def receive(
+        self,
+        exchange,
+        routing_key,
+        queue_name,
+        handler,
+        no_ack=False,
+        prefetch_count=0,
+        return_callback=None,
+        close_callback=None,
+        cancel_callback=None,
+    ):
         """
         receive message. creating a brand new channel to consume message. Before consuming, it have to declaring
         exchange and queue. And bind queue to particular exchange with routing key. if received properties is not
@@ -370,98 +388,127 @@ class TornadoAdapter(object):
             conn = yield self._receive_conn.get_connection()
             self.logger.info(
                 "[receive] exchange: %s; routing key: %s; queue name: %s",
-                exchange, routing_key, queue_name)
+                exchange,
+                routing_key,
+                queue_name,
+            )
             channel = yield self._create_channel(
-                conn,
-                close_callback=close_callback,
-                cancel_callback=cancel_callback)
-            yield self._queue_declare(channel,
-                                      queue=queue_name,
-                                      auto_delete=False,
-                                      durable=True)
+                conn, close_callback=close_callback, cancel_callback=cancel_callback
+            )
+            yield self._queue_declare(
+                channel, queue=queue_name, auto_delete=False, durable=True
+            )
             if routing_key != "":
                 yield self._exchange_declare(channel, exchange=exchange)
-                yield self._queue_bind(channel,
-                                       exchange=exchange,
-                                       queue=queue_name,
-                                       routing_key=routing_key)
+                yield self._queue_bind(
+                    channel,
+                    exchange=exchange,
+                    queue=queue_name,
+                    routing_key=routing_key,
+                )
             self.logger.info(
                 "[start consuming] exchange: %s; routing key: %s; queue name: %s",
-                exchange, routing_key, queue_name)
+                exchange,
+                routing_key,
+                queue_name,
+            )
             channel.basic_qos(prefetch_count=prefetch_count)
-            channel.basic_consume(on_message_callback=functools.partial(
-                self._on_message,
-                exchange=exchange,
-                handler=handler,
-                return_callback=return_callback,
-                close_callback=close_callback),
-                                  queue=queue_name,
-                                  auto_ack=no_ack)
+            channel.basic_consume(
+                on_message_callback=functools.partial(
+                    self._on_message,
+                    exchange=exchange,
+                    handler=handler,
+                    return_callback=return_callback,
+                    close_callback=close_callback,
+                ),
+                queue=queue_name,
+                auto_ack=no_ack,
+            )
         except Exception as e:
             self.logger.error("failed to receive message. %s", e)
             raise RabbitMQReceiveError("failed to receive message")
 
-    def _on_message(self,
-                    unused_channel,
-                    basic_deliver,
-                    properties,
-                    body,
-                    exchange,
-                    handler=None,
-                    return_callback=None,
-                    close_callback=None):
+    def _on_message(
+        self,
+        unused_channel,
+        basic_deliver,
+        properties,
+        body,
+        exchange,
+        handler=None,
+        return_callback=None,
+        close_callback=None,
+    ):
         self.logger.debug("consuming message")
-        self._io_loop.spawn_callback(self._process_message, unused_channel,
-                                     basic_deliver, properties, body, exchange,
-                                     handler, return_callback, close_callback)
+        self._io_loop.spawn_callback(
+            self._process_message,
+            unused_channel,
+            basic_deliver,
+            properties,
+            body,
+            exchange,
+            handler,
+            return_callback,
+            close_callback,
+        )
 
     @gen.coroutine
-    def _process_message(self,
-                         unused_channel,
-                         basic_deliver,
-                         properties,
-                         body,
-                         exchange,
-                         handler=None,
-                         return_callback=None,
-                         close_callback=None):
+    def _process_message(
+        self,
+        unused_channel,
+        basic_deliver,
+        properties,
+        body,
+        exchange,
+        handler=None,
+        return_callback=None,
+        close_callback=None,
+    ):
         try:
             result = yield handler(body)
             self.logger.info("message has been processed successfully")
-            if properties is not None \
-                    and properties.reply_to is not None:
+            if properties is not None and properties.reply_to is not None:
                 self.logger.info(
                     "sending result back to queue: %s, correlation id: %s",
-                    properties.reply_to, properties.correlation_id)
+                    properties.reply_to,
+                    properties.correlation_id,
+                )
                 yield self.publish(
                     exchange=exchange,
                     routing_key=properties.reply_to,
                     properties=BasicProperties(
-                        correlation_id=properties.correlation_id),
+                        correlation_id=properties.correlation_id
+                    ),
                     body=str(result),
                     mandatory=False,
                     return_callback=return_callback,
-                    close_callback=close_callback)
+                    close_callback=close_callback,
+                )
                 self.logger.info(
                     "sent result back to caller. queue : %s, correlation id: %s",
-                    properties.reply_to, properties.correlation_id)
+                    properties.reply_to,
+                    properties.correlation_id,
+                )
         except Exception:
             import traceback
+
             self.logger.error(traceback.format_exc())
             raise RabbitMQReceiveError("failed to handle received message.")
         finally:
             unused_channel.basic_ack(basic_deliver.delivery_tag)
 
     @gen.coroutine
-    def rpc(self,
-            exchange,
-            routing_key,
-            body,
-            timeout,
-            ttl,
-            close_callback=None,
-            return_callback=None,
-            cancel_callback=None):
+    def rpc(
+        self,
+        exchange,
+        routing_key,
+        body,
+        timeout,
+        ttl,
+        close_callback=None,
+        return_callback=None,
+        cancel_callback=None,
+    ):
         """
         rpc call. It create a queue randomly when encounters first call with the same exchange name. Then, it starts
         consuming the created queue(waiting result). It publishes message to rabbitmq with properties that has correlation_id
@@ -482,35 +529,40 @@ class TornadoAdapter(object):
             conn = yield self._receive_conn.get_connection()
             self.logger.info(
                 "preparing to rpc call. exchange: %s; routing key: %s",
-                exchange, routing_key)
+                exchange,
+                routing_key,
+            )
             if exchange not in self._rpc_exchange_dict:
                 self._rpc_exchange_dict[exchange] = Queue(maxsize=1)
                 callback_queue = yield self._initialize_rpc_callback(
                     exchange,
                     conn,
                     cancel_callback=cancel_callback,
-                    close_callback=close_callback)
+                    close_callback=close_callback,
+                )
                 yield self._rpc_exchange_dict[exchange].put(callback_queue)
             callback_queue = yield self._rpc_exchange_dict[exchange].get()
             yield self._rpc_exchange_dict[exchange].put(callback_queue)
             corr_id = str(uuid.uuid1())
-            self.logger.info("starting rpc calling correlation id: %s",
-                             corr_id)
+            self.logger.info("starting rpc calling correlation id: %s", corr_id)
             if corr_id in self._rpc_corr_id_dict:
-                self.logger.warning("correlation id exists before calling. %s",
-                                    corr_id)
+                self.logger.warning("correlation id exists before calling. %s", corr_id)
                 del self._rpc_corr_id_dict[corr_id]
             self._rpc_corr_id_dict[corr_id] = Future()
-            properties = BasicProperties(correlation_id=corr_id,
-                                         reply_to=callback_queue,
-                                         expiration=str(ttl * 1000))
-            yield self.publish(exchange,
-                               routing_key,
-                               body,
-                               properties=properties,
-                               mandatory=True,
-                               close_callback=close_callback,
-                               return_callback=return_callback)
+            properties = BasicProperties(
+                correlation_id=corr_id,
+                reply_to=callback_queue,
+                expiration=str(ttl * 1000),
+            )
+            yield self.publish(
+                exchange,
+                routing_key,
+                body,
+                properties=properties,
+                mandatory=True,
+                close_callback=close_callback,
+                return_callback=return_callback,
+            )
             self.logger.info("rpc message has been sent. %s", corr_id)
             result = yield self._wait_result(corr_id, timeout)
             if corr_id in self._rpc_corr_id_dict:
@@ -524,42 +576,42 @@ class TornadoAdapter(object):
             raise RabbitMQRpcError("failed to rpc call")
 
     @gen.coroutine
-    def _initialize_rpc_callback(self,
-                                 exchange,
-                                 conn,
-                                 close_callback=None,
-                                 cancel_callback=None):
+    def _initialize_rpc_callback(
+        self, exchange, conn, close_callback=None, cancel_callback=None
+    ):
         self.logger.info("initialize rpc callback queue")
         rpc_channel = yield self._create_channel(
-            conn,
-            close_callback=close_callback,
-            cancel_callback=cancel_callback)
-        callback_queue = yield self._queue_declare(rpc_channel,
-                                                   auto_delete=True)
+            conn, close_callback=close_callback, cancel_callback=cancel_callback
+        )
+        callback_queue = yield self._queue_declare(rpc_channel, auto_delete=True)
         self.logger.info("callback queue: %s", callback_queue)
         if exchange != "":
             yield self._exchange_declare(rpc_channel, exchange)
-            yield self._queue_bind(rpc_channel,
-                                   exchange=exchange,
-                                   queue=callback_queue,
-                                   routing_key=callback_queue)
+            yield self._queue_bind(
+                rpc_channel,
+                exchange=exchange,
+                queue=callback_queue,
+                routing_key=callback_queue,
+            )
         rpc_channel.basic_consume(
-            on_message_callback=self._rpc_callback_process,
-            queue=callback_queue)
+            on_message_callback=self._rpc_callback_process, queue=callback_queue
+        )
         raise gen.Return(callback_queue)
 
-    def _rpc_callback_process(self, unused_channel, basic_deliver, properties,
-                              body):
-        self.logger.info("rpc get response, correlation id: %s",
-                         properties.correlation_id)
+    def _rpc_callback_process(self, unused_channel, basic_deliver, properties, body):
+        self.logger.info(
+            "rpc get response, correlation id: %s", properties.correlation_id
+        )
         if properties.correlation_id in self._rpc_corr_id_dict:
-            self.logger.info("rpc get response, correlation id: %s",
-                             properties.correlation_id)
+            self.logger.info(
+                "rpc get response, correlation id: %s", properties.correlation_id
+            )
             self._rpc_corr_id_dict[properties.correlation_id].set_result(body)
         else:
             self.logger.warning(
                 "rpc get non exist response. correlation id: %s",
-                properties.correlation_id)
+                properties.correlation_id,
+            )
         unused_channel.basic_ack(basic_deliver.delivery_tag)
 
     def _wait_result(self, corr_id, timeout=None):
@@ -571,11 +623,11 @@ class TornadoAdapter(object):
                 self.logger.error("rpc timeout. corr id : %s", corr_id)
                 del self._rpc_corr_id_dict[corr_id]
                 future.set_exception(
-                    RabbitMQTimeoutError('rpc timeout. corr id: %s' % corr_id))
+                    RabbitMQTimeoutError("rpc timeout. corr id: %s" % corr_id)
+                )
 
         if timeout is not None:
-            self._io_loop.add_timeout(datetime.timedelta(seconds=timeout),
-                                      on_timeout)
+            self._io_loop.add_timeout(datetime.timedelta(seconds=timeout), on_timeout)
         return future
 
     def status_check(self):

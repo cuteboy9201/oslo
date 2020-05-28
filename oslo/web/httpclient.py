@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-'''
+"""
 @Author: Youshumin
 @Date: 2019-11-05 12:05:59
 @LastEditors  : YouShumin
 @LastEditTime : 2020-01-13 06:24:26
 @Description: 
-'''
+"""
 import tornado.web
 from tornado import httpclient
 from oslo.util import to_str
@@ -20,13 +20,8 @@ py_version = sys.version_info.major
 
 class AsyncRequest(object):
     """异步请求封装"""
-    def __init__(self,
-                 url,
-                 method,
-                 body="",
-                 format="json",
-                 headers=None,
-                 **kwargs):
+
+    def __init__(self, url, method, body="", format="json", headers=None, **kwargs):
         self.url = url
         self.method = method.upper()
         self.body = body
@@ -63,19 +58,20 @@ class AsyncRequest(object):
             url += "?{}".format(self._encode_request_args(self.req_data))
 
         req_body = self.body or body
-        return httpclient.HTTPRequest(url=url,
-                                      method=self.method,
-                                      body=req_body,
-                                      headers=self.headers,
-                                      connect_timeout=self.CONNECT_TIMEOUT,
-                                      request_timeout=self.REQUEST_TIMEOUT)
+        return httpclient.HTTPRequest(
+            url=url,
+            method=self.method,
+            body=req_body,
+            headers=self.headers,
+            connect_timeout=self.CONNECT_TIMEOUT,
+            request_timeout=self.REQUEST_TIMEOUT,
+        )
 
     @gen.coroutine
     def fetch(self):
         req = self._encode_request_mothod()
         try:
-            self._resp = yield self._client.fetch(request=req,
-                                                  raise_error=False)
+            self._resp = yield self._client.fetch(request=req, raise_error=False)
             self._resp = self._resp.body
             self._status = True
         except Exception as e:
@@ -100,3 +96,7 @@ class AsyncRequest(object):
     @property
     def resp(self):
         return self._resp
+
+
+class Request(object):
+    pass
