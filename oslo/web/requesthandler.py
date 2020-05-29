@@ -32,13 +32,13 @@ class MixinRequestHandler(tornado.web.RequestHandler):
             self.set_header("Cache-Control", "no-cache")
 
         # 跨域问题
-        req_origin = self.headers.get("Origin", "http://")
-        req_origin = req_origin.replace("http://", "")
+        source_req_origin = self.headers.get("Origin", "http://")
+        req_origin = source_req_origin.replace("http://", "")
         req_origin = req_origin.replace("https://", "")
         if options.debug:
             self.set_header("Access-Control-Allow-Origin", "*")
         elif options.allow_host and req_origin in options.allow_host:
-            self.set_header("Access-Control-Allow-Origin", req_origin)
+            self.set_header("Access-Control-Allow-Origin", source_req_origin)
         self.write(data)
 
     def send_fail(self, msg=None, callback=None, code=500, status=200):

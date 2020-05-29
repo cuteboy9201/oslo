@@ -1,0 +1,10 @@
+from oslo.web.httpclient import Request
+client = Request("GET", "json", "http", 3001)
+client.add_body_params("data", "admin")
+client.set_domain("127.0.0.1")
+client.set_uri_pattern("/test")
+req = client.fetch()
+code, head, content = req.get_response_object()
+print(code)
+print(head)
+print(content)
