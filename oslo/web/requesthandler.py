@@ -99,39 +99,28 @@ class MixinRequestHandler(tornado.web.RequestHandler):
 
     def options(self, *args, **kwargs):
         """
-        处理vue测试时候的跨域问题
+        处理跨域问题
         """
         self.set_header(
             "Access-Control-Allow-Methods", "GET,PUT,POST,PATCH,DELETE,HEAD,OPTIONS"
         )
-
+        self.set_header("Server", "Tengine/2.3.2")
         self.set_header("Connection", "keep-alive")
-        if options.debug:
-            # 测试环境
-            self.set_header(
-                "Access-Control-Allow-Origin",
-                "{}".format(self.request.headers.get("Origin", "")),
-            )
 
-            self.set_header(
-                "Access-Control-Allow-Headers",
-                "{}".format(
-                    self.request.headers.get("Access-Control-Request-Headers", "")
-                ),
-            )
-        elif options.allow_host:
-            # 生产环境
-            if self.headers.get("Origin", "") in options.allow_host:
-                self.set_header(
-                    "Access-Control-Allow-Origin",
-                    "{}".format(self.headers.get("Origin", "")),
-                )
-                self.set_header(
-                    "Access-Control-Allow-Headers",
-                    "{}".format(
-                        self.request.headers.get("Access-Control-Request-Headers", "")
-                    ),
-                )
+        source_req_origin = self.headers.get("Origin", "http://")
+        req_origin = source_req_origin.replace("http://", "")
+        req_origin = req_origin.replace("https://", "")
+
+        req_headers = self.request.headers.get("Access-Control-Request-Headers", "")
+
+        if options.debug:
+            self.set_header("Access-Control-Allow-Origin", "*")
+            self.set_header("Access-Control-Allow-Headers", req_headers)
+        elif options.allow_host and req_origin in options.allow_host:
+            self.set_header("Access-Control-Allow-Origin", source_req_origin)
+            self.set_header("Access-Control-Allow-Headers", req_headers)
+        else:
+            pass
         self.write("")
         self.set_status(205)
         self.finish()
