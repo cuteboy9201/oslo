@@ -22,7 +22,7 @@ setup(
         "oslo.form",
         "oslo.task",
         "oslo.http",
-        "oslo.util",
+        "oslo.utils",
     ],
     zip_safe=False,
     install_requires=[""],
