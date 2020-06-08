@@ -82,6 +82,7 @@ class HttpResponse(HttpRequest):
     def get_response_object(self):
         with Session() as s:
             current_protocol = "https://" if self.get_ssl_enabled() else "http://"
+
             url = current_protocol + self.get_host() + self.get_url()
             if self.__port != 80:
                 url = (
@@ -91,7 +92,7 @@ class HttpResponse(HttpRequest):
                     + str(self.__port)
                     + self.get_url()
                 )
-
+            print(url)
             req = Request(
                 method=self.get_method(),
                 url=url,

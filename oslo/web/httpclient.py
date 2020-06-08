@@ -114,80 +114,123 @@ class AsyncRequest(object):
 
 
 class Request(object):
-    def __init__(self, method, accept_format, protocol_type=None, port=80):
+    def __init__(
+        self,
+        method="GET",
+        accept_format="JSON",
+        protocol_type="http",
+        port=80,
+        domain=None,
+    ):
         self._method = method
         self._accept_format = accept_format
+        self._protocol_type = protocol_type
         self._port = port
-        self._params = {}
+        self._domain = domain
+
         self._header = {}
         self._body_params = {}
-        self._uri_pattern = None
-        self._uri_params = None
-        self._content = None
+        self._uri_params = {}
+        self._uri_pattern = "/"
 
-        self._request_connect_timeout = None
-        self._request_read_timeout = None
-        self._domain = None
+        self._request_connect_timeout = 5
+        self._request_read_timeout = 5
+
+    def set_method(self, method):
+        """
+            请求方法
+        """
+        self._method = method
+
+    def get_methdo(self):
+        return self._method
+
+    def set_accept_format(self, accept_format):
+        """
+            请求数据格式
+        """
+        self._accept_format = accept_format
+
+    def get_accept_format(self):
+        return self._accept_format
+
+    def set_protocol_type(self, protocol_type):
+        """
+            http or https; default: http
+        """
         self._protocol_type = protocol_type
 
-        if self._protocol_type is None:
-            self._protocol_type = "http"
+    def get_protocol_type(self):
+        return self._protocol_type
 
-    def add_query_param(self, k, v):
-        self._params[k] = v
+    def set_port(self, port):
+        self._port = port
+
+    def get_port(self):
+        return self._port
+
+    def set_domain(self, domain):
+        """
+            设置请求domain, 不包含https/http,不包含请求路径
+        """
+        self._domain = domain
+
+    def get_domain(self):
+        return self._domain
+
+    def set_headers(self, headers):
+        """
+            设置请求headers[直接赋值操作]
+        """
+        self._header = headers
+
+    def get_headers(self):
+        return self._header
+
+    def add_header(self, k, v):
+        """
+            添加header头, k/v形式, 非赋值是增加
+        """
+        self._header[k] = v
+
+    def set_body_params(self, body_params):
+        """
+            post请求参数
+        """
+        self._body_params = body_params
 
     def add_body_params(self, k, v):
         self._body_params[k] = v
 
-    def set_uri_pattern(self, pattern):
-        self._uri_pattern = pattern
+    def get_body_params(self):
+        return self._body_params
+
+    def set_uri_params(self, params):
+        """
+            get请求参数
+        """
+        self._uri_params = params
+
+    def get_uri_params(self):
+        return self._uri_params
+
+    def add_uri_params(self, k, v):
+        self._uri_params[k] = v
+
+    def set_uri_pattern(self, uri_pattern):
+        """
+            请求路径[请求路由]
+        """
+        self._uri_pattern = uri_pattern
 
     def get_uri_pattern(self):
         return self._uri_pattern
 
-    def set_uri_params(self, params):
-        self._uri_params = params
-
-    def set_method(self, method):
-        self._method = method
-
-    def set_accept_format(self, accept_format):
-        self._accept_format = accept_format
-
-    def set_query_params(self, params):
-        self._params = params
-
-    def set_body_params(self, body_params):
-        self._body_params = body_params
-
-    def get_body_params(self):
-        return self._body_params
-
-    def set_content(self, conent):
-        self._content = conent
-
-    def set_headers(self, headers):
-        self._header = headers
-
-    def add_header(self, k, v):
-        self._header[k] = v
-
     def set_user_agent(self, agent):
         self.add_header("User-Agent", agent)
 
-    def set_domain(self, domain):
-        self._domain = domain
-
-    def set_protocol_type(self, protocol_type):
-        self._protocol_type = protocol_type
-
-    # def get_request_url(self):
-    #     return self._protocol_type + self._domain + self._uri_params
-
-    def get_request_url_url(self):
+    def get_request_url(self):
         url = ""
-        url += self._protocol_type
-        url += self._domain
         url += self._uri_pattern
         if not url.endswith("?"):
             url += "?"
@@ -204,7 +247,7 @@ class Request(object):
             self._content = body
         response = HttpResponse(
             host=self._domain,
-            url=self._uri_pattern,
+            url=self.get_request_url(),
             method=self._method,
             headers=self._header,
             protocol=self._protocol_type,
@@ -213,7 +256,4 @@ class Request(object):
             read_timeout=self._request_read_timeout,
             connect_timeout=self._request_connect_timeout,
         )
-        # if self._body_params:
-        #     body = urlencode(self._body_params)
-        #     response.set_content(body, "utf-8", format="JSON")
         return response

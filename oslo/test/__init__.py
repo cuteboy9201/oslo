@@ -1,10 +1,13 @@
 from oslo.web.httpclient import Request
-client = Request("GET", "json", "http", 3001)
-client.add_body_params("data", "admin")
-client.set_domain("127.0.0.1")
-client.set_uri_pattern("/test")
+
+client = Request()
+client.set_method("GET")
+client.set_domain("api.kuaiwan.com")
+client.set_uri_pattern("/sms/send/")
+client.add_uri_params("phonenumber", 17600878987)
+client.add_uri_params("typecode", "sms_rerpassword")
+client.set_protocol_type("https")
+client.set_port = 443
 req = client.fetch()
 code, head, content = req.get_response_object()
-print(code)
-print(head)
-print(content)
+print(code, head, content)
