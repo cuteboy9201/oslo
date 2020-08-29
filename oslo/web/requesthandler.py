@@ -50,7 +50,12 @@ class MixinRequestHandler(tornado.web.RequestHandler):
 
     def send_fail_json(self, msg=None, callback=None, code=500, status=200):
         # 兼容旧接口
-        return self.send_fail(msg=msg, code=code, status=status)
+        # return self.send_fail(msg=msg, code=code, status=status)
+        send_json = dict(status=code, msg=msg or "", data="")
+        send_json_format = json.dumps(send_json, ensure_ascii=True)
+        self.write_client(send_json_format, True)
+        self.set_status(status)
+        self.finish()
 
     def send_ok(self, data=None, callback=None, code=200, status=200):
         send_json = dict(statusCode=code, msg="", data=data)
@@ -61,7 +66,12 @@ class MixinRequestHandler(tornado.web.RequestHandler):
 
     def send_ok_json(self, data=None, callback=None, code=200, status=200):
         # 兼容旧接口
-        return self.send_ok(data=data, code=code, status=status)
+        # return self.send_ok(data=data, code=code, status=status)
+        send_json = dict(status=code, msg="", data=data)
+        send_json_format = json.dumps(send_json, ensure_ascii=True)
+        self.write_client(send_json_format, True)
+        self.set_status(status)
+        self.finish()
 
     def get_client_ip(self):
         xff = self.headers.get("X-Forwarded-For", "")
