@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding:utf-8 -*-
 """
 @Author: YouShumin
@@ -15,6 +14,8 @@ import socket
 import sys
 import time
 import uuid
+import datetime
+from wsgiref.validate import ErrorWrapper
 
 from oslo.utils.compat import ensure_bytes, ensure_string
 
@@ -22,6 +23,7 @@ TIME_ZONE = "GMT"
 FORMAT_ISO_8601 = "%Y-%m-%dT%H:%M:%SZ"
 FORMAT_RFC_2616 = "%a, %d %b %Y %H:%M:%S GMT"
 FORMAT_TODAY_DATE = "%Y%m%d"
+FORMAT_NOW = "%Y-%m-%d %H:%M:%S"
 
 
 def get_uuid():
@@ -40,6 +42,11 @@ def get_rfc_2616_date():
 
 def get_today_date():
     return time.strftime(FORMAT_TODAY_DATE, time.gmtime())
+
+
+def get_now_time():
+    return datetime.datetime.now().strftime(FORMAT_NOW)
+    # return time.strftime(FORMAT_NOW, time.gmtime())
 
 
 def md5_sum(content):
