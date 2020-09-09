@@ -46,7 +46,6 @@ def get_today_date():
 
 def get_now_time():
     return datetime.datetime.now().strftime(FORMAT_NOW)
-    # return time.strftime(FORMAT_NOW, time.gmtime())
 
 
 def md5_sum(content):

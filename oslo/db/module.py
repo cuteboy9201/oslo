@@ -3,8 +3,8 @@
 '''
 @Author: Youshumin
 @Date: 2019-11-06 09:08:58
-@LastEditors  : YouShumin
-@LastEditTime : 2020-01-19 16:22:27
+LastEditors: YouShumin
+LastEditTime: 2020-09-09 10:58:13
 @Description: 
 '''
 import logging
@@ -12,7 +12,7 @@ from collections import defaultdict
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-
+import traceback
 LOG = logging.getLogger(__name__)
 
 
@@ -78,3 +78,29 @@ class mysqlHanlder(object):
         else:
             LOG.error("get_db: {} faild".format(db_name))
         return ""
+
+class MixDbBase:
+
+    def __init__(self,db_name="", table=""):
+
+        self.table = table
+        self.db_name = db_name
+        self.session = mysqlHanlder().get_session(db_name=self.db_name)
+        self.db_obj = self.session.query(self.table)
+
+    
+    def getById(self, id):
+        db_info = self.db_obj.filter(self.table.id == id).first()
+        return db_info 
+    
+    def delById(self, id):
+        del_data = self.getById(id)
+        if del_data:
+            try:
+                self.session.delete(del_data)
+                self.session.commit()
+                return True
+            except Exception as e:
+                LOG.error(traceback.format_exc())
+                self.session.rollback()
+        return False
