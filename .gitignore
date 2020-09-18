@@ -4,3 +4,4 @@ build
 dist
 oslo.egg-info
 setting.json
+.vscode/*

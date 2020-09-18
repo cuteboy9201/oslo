@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-06 09:08:58
 LastEditors: YouShumin
-LastEditTime: 2020-09-09 10:58:13
+LastEditTime: 2020-09-18 10:54:25
 @Description: 
 '''
 import logging
@@ -29,9 +29,7 @@ class DBPool(object):
     def get(self, dbname):
         return self.subdb[dbname]
 
-
 db_pool = DBPool()
-
 
 class mysqlHanlder(object):
     def init(self, dbname=None, dburl=None, dbecho=False, pool_size=10):
@@ -62,6 +60,8 @@ class mysqlHanlder(object):
             sessionmaker(bind=self.engin, expire_on_commit=False))
 
     def get_session(self, db_name):
+        if not db_name:
+            return ""
         db_list = db_pool.get(db_name)
         if db_list:
             db = db_list[0][0]
@@ -80,27 +80,57 @@ class mysqlHanlder(object):
         return ""
 
 class MixDbBase:
-
     def __init__(self,db_name="", table=""):
-
         self.table = table
-        self.db_name = db_name
-        self.session = mysqlHanlder().get_session(db_name=self.db_name)
+        db_name = db_name
+        self.session = self.create_db_engin(db_name)
         self.db_obj = self.session.query(self.table)
 
-    
+    # 创建数据库engin
+    def create_db_engin(db_name=None):
+        return mysqlHanlder().get_session(db_name=db_name)
+
+    # 获取数据库对象
+    def get_db(self, **kwargs):
+        return self.db_obj.filter_by(**kwargs)
+
+    # 获取一条信息 根据ID
     def getById(self, id):
-        db_info = self.db_obj.filter(self.table.id == id).first()
-        return db_info 
+        return self.get_db(id=id).first()
+
+    # 修改一条信息 根据ID
+    def putById(self, id, **kwargs):
+        db = self.get_db(id=id)
+        if db:
+            db.update({**kwargs})
+            self.session.commit()
+            return Ture, id
+        else:
+            False, "ID不存在"
     
+    # 增加一条信息根据ID 
+    def addById(self, id, **kwargs):
+        db = self.get_db(id=id)
+        if not db:
+            add_data = self.table(id=id, **kwargs)
+            self.session.add(add_data)
+            self.session.commit()
+            return True,id
+        else:
+            return False, "已经存在"
+    # 根据ID删除一条信息
     def delById(self, id):
-        del_data = self.getById(id)
-        if del_data:
+        db = self.get_db(id=id)
+        if db:
             try:
-                self.session.delete(del_data)
+                self.session.delete(db.first())
                 self.session.commit()
                 return True
             except Exception as e:
                 LOG.error(traceback.format_exc())
+                
                 self.session.rollback()
-        return False
+                return False
+        else:
+            return False
+    
