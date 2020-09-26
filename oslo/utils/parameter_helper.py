@@ -1,12 +1,14 @@
+#!/usr/bin/env python
 # -*- coding:utf-8 -*-
-"""
-@Author: YouShumin
-@Date: 2020-05-18 14:38:20
-@LastEditTime: 2020-05-18 14:38:21
-@LastEditors: YouShumin
-@Description: 
-@FilePath: /oslo/oslo/utils/parameter_helper.py
-"""
+'''
+Author: YouShumin
+Date: 2020-05-28 15:12:15
+LastEditTime: 2020-09-26 15:42:27
+LastEditors: YouShumin
+Description: Another flat day
+FilePath: /oslo/oslo/utils/parameter_helper.py
+'''
+
 
 import base64
 import hashlib
@@ -52,7 +54,3 @@ def md5_sum(content):
     content_bytes = ensure_bytes(content)
     md5_bytes = hashlib.md5(content_bytes).digest()
     return ensure_string(base64.standard_b64encode(md5_bytes))
-
-
-if __name__ == "__main__":
-    print(get_today_date())

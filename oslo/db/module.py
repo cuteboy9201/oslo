@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-06 09:08:58
 LastEditors: YouShumin
-LastEditTime: 2020-09-18 10:54:25
+LastEditTime: 2020-09-26 15:49:10
 @Description: 
 '''
 import logging
@@ -104,7 +104,7 @@ class MixDbBase:
         if db:
             db.update({**kwargs})
             self.session.commit()
-            return Ture, id
+            return True, id
         else:
             False, "ID不存在"
     
