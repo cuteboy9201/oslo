@@ -3,13 +3,11 @@
 '''
 Author: YouShumin
 Date: 2020-09-26 15:54:01
-LastEditTime: 2020-09-26 19:12:03
+LastEditTime: 2020-09-26 19:12:28
 LastEditors: YouShumin
 Description: Another flat day
 FilePath: /oslo/oslo/db/cache_redis.py
 '''
-import sys 
-sys.path.insert(0,"/Users/youshumin/Desktop/code/oslo")
 import redis 
 import pickle
 import logging 
