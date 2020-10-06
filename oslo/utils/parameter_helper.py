@@ -3,7 +3,7 @@
 '''
 Author: YouShumin
 Date: 2020-05-28 15:12:15
-LastEditTime: 2020-09-26 15:42:27
+LastEditTime: 2020-10-06 14:50:54
 LastEditors: YouShumin
 Description: Another flat day
 FilePath: /oslo/oslo/utils/parameter_helper.py
@@ -49,6 +49,8 @@ def get_today_date():
 def get_now_time():
     return datetime.datetime.now().strftime(FORMAT_NOW)
 
+def get_format_time(format_time):
+    return datetime.datetime.now().strftime(format_time)
 
 def md5_sum(content):
     content_bytes = ensure_bytes(content)

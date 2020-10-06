@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-06 09:08:58
 LastEditors: YouShumin
-LastEditTime: 2020-09-26 15:49:10
+LastEditTime: 2020-09-28 16:42:28
 @Description: 
 '''
 import logging
@@ -29,7 +29,9 @@ class DBPool(object):
     def get(self, dbname):
         return self.subdb[dbname]
 
+
 db_pool = DBPool()
+
 
 class mysqlHanlder(object):
     def init(self, dbname=None, dburl=None, dbecho=False, pool_size=10):
@@ -79,15 +81,16 @@ class mysqlHanlder(object):
             LOG.error("get_db: {} faild".format(db_name))
         return ""
 
+
 class MixDbBase:
-    def __init__(self,db_name="", table=""):
+    def __init__(self, db_name="", table=""):
         self.table = table
-        db_name = db_name
-        self.session = self.create_db_engin(db_name)
+        print(db_name)
+        self.session = self.create_db_engin(db_name=db_name)
         self.db_obj = self.session.query(self.table)
 
     # 创建数据库engin
-    def create_db_engin(db_name=None):
+    def create_db_engin(self, db_name=None):
         return mysqlHanlder().get_session(db_name=db_name)
 
     # 获取数据库对象
@@ -107,17 +110,18 @@ class MixDbBase:
             return True, id
         else:
             False, "ID不存在"
-    
-    # 增加一条信息根据ID 
+
+    # 增加一条信息根据ID
     def addById(self, id, **kwargs):
         db = self.get_db(id=id)
         if not db:
             add_data = self.table(id=id, **kwargs)
             self.session.add(add_data)
             self.session.commit()
-            return True,id
+            return True, id
         else:
             return False, "已经存在"
+
     # 根据ID删除一条信息
     def delById(self, id):
         db = self.get_db(id=id)
@@ -128,9 +132,8 @@ class MixDbBase:
                 return True
             except Exception as e:
                 LOG.error(traceback.format_exc())
-                
+
                 self.session.rollback()
                 return False
         else:
             return False
-    
