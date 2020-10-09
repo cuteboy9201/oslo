@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-06 09:08:58
 LastEditors: YouShumin
-LastEditTime: 2020-09-28 16:42:28
+LastEditTime: 2020-10-09 10:27:16
 @Description: 
 '''
 import logging
@@ -85,7 +85,6 @@ class mysqlHanlder(object):
 class MixDbBase:
     def __init__(self, db_name="", table=""):
         self.table = table
-        print(db_name)
         self.session = self.create_db_engin(db_name=db_name)
         self.db_obj = self.session.query(self.table)
 

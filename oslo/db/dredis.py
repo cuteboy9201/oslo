@@ -3,22 +3,31 @@
 '''
 Author: YouShumin
 Date: 2020-09-26 16:02:37
-LastEditTime: 2020-09-26 19:09:49
+LastEditTime: 2020-10-09 10:37:46
 LastEditors: YouShumin
 Description: Another flat day
 FilePath: /oslo/oslo/db/dredis.py
 '''
+import platform
 import socket
 import warnings
 
 import redis
 from redis import connection
 
+if platform.system() == "Darwin":
+    OSTYPE = "mac"
+elif platform.system() == "Linux":
+    OSTYPE = "linux"
+else:
+    OSTYPE = "linux"
 _rv = redis.__version__.split(".")
 
 # assert _rv[0] >= "2" and _rv[1].rjust(2, "0") >= "10"
 
 TCP_CLOSE_WAIT = 8 
+
+
 
 class NewConnection(redis.Connection):
 
@@ -44,9 +53,13 @@ class NewConnection(redis.Connection):
         if self._sock is None:
             return 
         try:
-            state = ord(self._sock.getsockopt(
-                socket.SOL_TCP, socket.TCP_INFO, 1
-            ))
+            if OSTYPE == "mac":
+                state = ord(
+                    self._sock.getsockopt(socket.SOL_TCP, socket.TCP_KEEPINTVL,
+                                          1))
+            else:
+                state = ord(
+                    self._sock.getsockopt(socket.SOL_TCP, socket.TCP_INFO, 1))
             if state == TCP_CLOSE_WAIT:
                 raise redis.ConnectionError()
         except socket.error:
