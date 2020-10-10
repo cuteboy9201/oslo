@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-06 09:08:58
 LastEditors: YouShumin
-LastEditTime: 2020-10-09 10:27:16
+LastEditTime: 2020-10-10 15:26:31
 @Description: 
 '''
 import logging
@@ -136,3 +136,6 @@ class MixDbBase:
                 return False
         else:
             return False
+    
+    def get_info(self, **kwargs):
+        return self.get_db(**kwargs).all()
