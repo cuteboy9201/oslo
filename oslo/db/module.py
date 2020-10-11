@@ -120,6 +120,19 @@ class MixDbBase:
             return True, id
         else:
             return False, "已经存在"
+        db = self.get_db(id=id)
+        if db:
+            return False, "已经存在"
+        try:
+            add_data = self.table(id=id, **kwargs)
+            self.session.add(add_data)
+            self.session.commit()
+            return True, id
+        except Exception as e:
+            LOG.debug(str(e))
+            LOG.error(traceback.format_exc())
+            self.session.rollback()
+            return False,"未知错误"
 
     # 根据ID删除一条信息
     def delById(self, id):
@@ -130,8 +143,8 @@ class MixDbBase:
                 self.session.commit()
                 return True
             except Exception as e:
+                LOG.debug(str(e))
                 LOG.error(traceback.format_exc())
-
                 self.session.rollback()
                 return False
         else:
@@ -139,3 +152,6 @@ class MixDbBase:
     
     def get_info(self, **kwargs):
         return self.get_db(**kwargs).all()
+
+    def __del__(self):
+        self.session.close()
