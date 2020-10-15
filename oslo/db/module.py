@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-06 09:08:58
 LastEditors: YouShumin
-LastEditTime: 2020-10-10 15:26:31
+LastEditTime: 2020-10-12 16:02:29
 @Description: 
 '''
 import logging
@@ -112,15 +112,7 @@ class MixDbBase:
 
     # 增加一条信息根据ID
     def addById(self, id, **kwargs):
-        db = self.get_db(id=id)
-        if not db:
-            add_data = self.table(id=id, **kwargs)
-            self.session.add(add_data)
-            self.session.commit()
-            return True, id
-        else:
-            return False, "已经存在"
-        db = self.get_db(id=id)
+        db = self.getById(id=id)
         if db:
             return False, "已经存在"
         try:
@@ -136,10 +128,10 @@ class MixDbBase:
 
     # 根据ID删除一条信息
     def delById(self, id):
-        db = self.get_db(id=id)
+        db = self.get_db(id=id).first()
         if db:
             try:
-                self.session.delete(db.first())
+                self.session.delete(db)
                 self.session.commit()
                 return True
             except Exception as e:
