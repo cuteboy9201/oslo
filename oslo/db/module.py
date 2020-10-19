@@ -4,7 +4,7 @@
 @Author: Youshumin
 @Date: 2019-11-06 09:08:58
 LastEditors: YouShumin
-LastEditTime: 2020-10-12 16:02:29
+LastEditTime: 2020-10-19 14:47:06
 @Description: 
 '''
 import logging
@@ -13,6 +13,7 @@ from collections import defaultdict
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 import traceback
+from oslo.util import dbObjFormatToJson
 LOG = logging.getLogger(__name__)
 
 
@@ -144,6 +145,21 @@ class MixDbBase:
     
     def get_info(self, **kwargs):
         return self.get_db(**kwargs).all()
+
+
+    def get_list(self, page, size, get_item,**rule):
+        offset = (page - 1) * size
+        db= self.get_db(**rule)
+
+        total = len(db.all())
+        db_info = db.limit(size).offset(offset).all() 
+
+        items = [] 
+        for itme in db_info:
+            one_info = dbObjFormatToJson(item, field_to_expand=get_item)
+            items.append(one_info)
+        ret_data = dict(total=total, items=items)
+        return ret_data
 
     def __del__(self):
         self.session.close()
